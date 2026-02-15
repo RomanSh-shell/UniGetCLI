@@ -31,7 +31,7 @@ function uniget {
         [string[]]$packages
     )
     
-    # Определяем доступные менеджеры
+    # Define available package managers
     $managers = @{
         "winget" = @{ 
             Name = "Windows Package Manager"
@@ -80,13 +80,13 @@ function uniget {
         }
     }
     
-    # Проверяем доступность менеджеров
+    # Check availability менеджеров
     $available = @{}
     foreach($key in $managers.Keys) {
         $available[$key] = [bool](& $managers[$key].Check)
     }
     
-    # Если команда не указана, показываем help
+    # Show help if no command specified
     if(-not $command) {
         Write-Host @"
 
@@ -123,7 +123,7 @@ No need to specify winget/choco/npm/pip manually.
         return
     }
     
-    # Интерактивный выбор элементов (Aptitude-style)
+    # Interactive selection (Aptitude-style)
     function Show-InteractiveSelection {
         param(
             [Parameter(Mandatory=$true)]
@@ -156,14 +156,14 @@ No need to specify winget/choco/npm/pip manually.
             Write-Host ""
             
             for($i = 0; $i -lt $Items.Count; $i++) {
-                # Курсор
+                # Cursor
                 if($i -eq $selected) {
                     Write-Host "  ► " -NoNewline -ForegroundColor Cyan
                 } else {
                     Write-Host "    " -NoNewline
                 }
                 
-                # Маркер
+                # Marker
                 if($marked[$i]) {
                     Write-Host "[+] " -NoNewline -ForegroundColor Green
                 } else {
@@ -188,7 +188,7 @@ No need to specify winget/choco/npm/pip manually.
             Write-Host "Q" -NoNewline -ForegroundColor Yellow
             Write-Host " quit" -ForegroundColor DarkGray
             
-            # Ждём нажатия клавиши
+            # Wait for key press
             $key = $host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
             
             switch($key.VirtualKeyCode) {
@@ -205,7 +205,7 @@ No need to specify winget/choco/npm/pip manually.
             }
         }
         
-        # Возвращаем выбранные элементы
+        # Return selected items
         $result = @()
         for($i = 0; $i -lt $Items.Count; $i++) {
             if($marked[$i]) {
@@ -1030,7 +1030,7 @@ No need to specify winget/choco/npm/pip manually.
         $managers = @("winget", "choco", "scoop", "npm", "pip")
         $completed = 0
         
-        # Собираем обновления из всех менеджеров
+        # Collect updates из всех менеджеров
         if($available["winget"]) {
             Write-Progress -Activity "Checking for updates" -Status "winget..." -PercentComplete (($completed / $managers.Count) * 100)
             $result = winget upgrade 2>$null | Out-String
@@ -1392,7 +1392,7 @@ No need to specify winget/choco/npm/pip manually.
                 Write-Host ""
                 Write-Host "Lower number = checked first" -ForegroundColor DarkGray
                 
-                # Ждём нажатия клавиши
+                # Wait for key press
                 $key = $host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
                 
                 switch($key.VirtualKeyCode) {
@@ -1554,13 +1554,13 @@ No need to specify winget/choco/npm/pip manually.
                 return
             }
             
-            # Устанавливаем выбранные параллельно
+            # Install selected параллельно
             Write-Host ""
             Write-Host ":: " -NoNewline -ForegroundColor Cyan
             Write-Host "Installing $($toInstall.Count) package manager(s)..." -ForegroundColor White
             Write-Host ""
             
-            # Запускаем установку параллельно
+            # Run installations in parallel
             $installJobs = @{}
             
             foreach($m in $toInstall) {
@@ -1596,7 +1596,7 @@ No need to specify winget/choco/npm/pip manually.
                 
                 Write-Host ""
                 
-                # Проверяем результаты
+                # Check results
                 foreach($key in $installJobs.Keys) {
                     $m = $toInstall | Where-Object { $_.Key -eq $key } | Select-Object -First 1
                     $job = $installJobs[$key]
